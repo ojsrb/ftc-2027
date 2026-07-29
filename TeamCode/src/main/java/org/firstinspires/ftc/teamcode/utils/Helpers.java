@@ -73,20 +73,20 @@ public class Helpers {
         }
     }
 
-    public static class ChassisSpeeds {
+    public static class Speeds {
         private final double x;
         private final double y;
         private final double w;
 
         /** Center of the field */
-        public ChassisSpeeds() {
+        public Speeds() {
             x = 0;
             y = 0;
             w = 0;
         }
 
         /** y+ = away from red, x+ = right of red perspective */
-        public ChassisSpeeds(double x, double y, double deg) {
+        public Speeds(double x, double y, double deg) {
             this.x = x;
             this.y = y;
             this.w = deg;
@@ -103,5 +103,11 @@ public class Helpers {
         public double getDeg() {
             return w;
         }
+
+        public Speeds toRobot(double deg) {
+            return new Speeds(getX() * Math.cos(deg / 180.0 * Math.PI) - getY() * Math.sin(deg / 180.0 * Math.PI), getX() * Math.sin(deg / 180.0 * Math.PI) + getY() * Math.cos(deg / 180.0 * Math.PI), getDeg());
+        }
     }
+
+
 }

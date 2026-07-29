@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
+import org.firstinspires.ftc.teamcode.utils.Helpers.Speeds;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
@@ -13,8 +15,8 @@ public class Superstructure {
     }
 
     private Pose2d pose;
-    public Vision vision;
-    public Drivetrain drivetrain;
+    private Vision vision;
+    private Drivetrain drivetrain;
 
     private State state;
 
@@ -22,7 +24,7 @@ public class Superstructure {
         vision = new Vision();
         pose = vision.getVisionPose();
         state = State.IDLE;
-        drivetrain = new Drivetrain(hardwareMap, pose);
+        drivetrain = new Drivetrain(hardwareMap);
     }
 
     private static Superstructure instance;
@@ -35,7 +37,11 @@ public class Superstructure {
     }
 
     public void update() {
-        drivetrain.mecanumDrive();
+        drivetrain.update();
+    }
+
+    public void drivetrainSpeeds(Speeds speeds) {
+        drivetrain.setVelocity(speeds);
     }
 
     public void setState(State newState) {
