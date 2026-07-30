@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+
 public class Helpers {
 
     public static class Translation2d {
@@ -58,6 +60,11 @@ public class Helpers {
         public Pose2d(Translation2d translation, Rotation2d rotation) {
             this.t = translation;
             this.w = rotation;
+        }
+
+        public Pose2d(double x, double y, double w) {
+            this.t = new Translation2d(x, y);
+            this.w = new Rotation2d(w);
         }
 
         public double getX() {

@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.teamcode.utils.Helpers.Speeds;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
@@ -11,20 +13,30 @@ public class Superstructure {
 
     public enum State {
         IDLE,
-        MOVING
+        INTAKE,
+        SCORE,
+        DEPOSIT,
+        TRAVEL
+    }
+
+    public enum DriveState {
+        TELEOP,
+        AUTO,
+        ALIGN
     }
 
     private Pose2d pose;
     private Vision vision;
     private Drivetrain drivetrain;
 
+    private DriveState driveState;
+
     private State state;
 
+    private boolean changingStates = false;
+
     private Superstructure() {
-        vision = new Vision();
-        pose = vision.getVisionPose();
         state = State.IDLE;
-        drivetrain = new Drivetrain(hardwareMap);
     }
 
     private static Superstructure instance;
@@ -36,16 +48,27 @@ public class Superstructure {
         return instance;
     }
 
-    public void update() {
-        drivetrain.update();
+    public void initializeHardwareMap(HardwareMap hardwareMap) {
+        vision = new Vision(hardwareMap);
+        drivetrain = new Drivetrain(hardwareMap, pose);
     }
 
-    public void drivetrainSpeeds(Speeds speeds) {
+    public void update() {
+        pose = drivetrain.update(driveState, vision.estimatePose());
+    }
+
+    public void setDrivetrainSpeeds(Speeds speeds) {
         drivetrain.setVelocity(speeds);
     }
 
+    public void setDriveState(DriveState newState) {
+        driveState = newState;
+    }
+
     public void setState(State newState) {
-        state = newState;
+        if (!changingStates) {
+            state = newState;
+        }
     }
 
     public State getState() {
@@ -54,6 +77,10 @@ public class Superstructure {
 
     public Pose2d getPose() {
         return pose;
+    }
+
+    public boolean isChangingStates() {
+        return changingStates;
     }
 
 }

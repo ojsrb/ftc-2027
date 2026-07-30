@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.utils.Helpers.Speeds;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Rotation2d;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Translation2d;
+import org.firstinspires.ftc.teamcode.Superstructure.DriveState;
 
 
 public class Drivetrain {
@@ -30,13 +31,13 @@ public class Drivetrain {
 
     private IMU imu;
 
-    public Drivetrain(HardwareMap hardwareMap) {
+    public Drivetrain(HardwareMap hardwareMap, Pose2d initialPose) {
         fl = hardwareMap.get(DcMotor.class, "leftFront");
         fr = hardwareMap.get(DcMotor.class, "rightFront");
         bl = hardwareMap.get(DcMotor.class, "leftRear");
         br = hardwareMap.get(DcMotor.class, "rightRear");
         robotSpeeds = new Speeds();
-        pose = new Pose2d();
+        pose = initialPose;
 
         fl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         fr.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -121,8 +122,10 @@ public class Drivetrain {
         br.setPower(brPower);
     }
 
-    public void update() {
+
+    public Pose2d update(DriveState robotState, Pose2d visionPose) {
         poseEstimate();
         mecanumDrive();
+        return pose;
     }
 }
