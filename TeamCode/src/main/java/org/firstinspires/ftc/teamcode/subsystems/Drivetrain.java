@@ -64,7 +64,7 @@ public class Drivetrain {
     }
 
     public void setVelocity(Speeds velocity) {
-        robotSpeeds = velocity.toRobot(pose.getDeg());
+        robotSpeeds = velocity.toRobot(pose.getHeading());
     }
 
     private void poseEstimate() {
@@ -87,7 +87,7 @@ public class Drivetrain {
         double dyR = (-dFL + dFR + dBL - dBR) / 4.0;
 
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        double avgHeading = pose.getDeg() + (heading - pose.getDeg()) / 2.0;
+        double avgHeading = pose.getHeading() + (heading - pose.getHeading()) / 2.0;
 
         // encoder estimated position
         double estimatedX = dxR * Math.cos(avgHeading / 180.0 * Math.PI) - dyR * Math.sin(avgHeading / 180.0 * Math.PI);
@@ -124,7 +124,7 @@ public class Drivetrain {
         double offsetY = (visionMeasurement.pose.getY() - closest.pose.getY()) * visionMeasurement.confidence;
 
         for (int i = index; i < poseHistory.size(); i++) {
-            poseHistory.get(i).pose = new Pose2d(poseHistory.get(i).pose.getX() + offsetX, poseHistory.get(i).pose.getY() + offsetY, poseHistory.get(i).pose.getDeg());
+            poseHistory.get(i).pose = new Pose2d(poseHistory.get(i).pose.getX() + offsetX, poseHistory.get(i).pose.getY() + offsetY, poseHistory.get(i).pose.getHeading());
         }
 
         pose = poseHistory.get(poseHistory.size() - 1).pose;
@@ -136,7 +136,7 @@ public class Drivetrain {
 
         double axial   = robotSpeeds.getY();
         double lateral =  robotSpeeds.getX();
-        double yaw = robotSpeeds.getDeg() - pose.getDeg();
+        double yaw = robotSpeeds.getHeading() - pose.getHeading();
 
         // Combine the joystick requests for each axis-motion to determine each wheel's power.
         // Set up a variable for each drive wheel to save the power level for telemetry.

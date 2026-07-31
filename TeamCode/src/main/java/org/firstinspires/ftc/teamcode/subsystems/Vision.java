@@ -5,13 +5,13 @@ import androidx.core.math.MathUtils;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraCompatibilityManager;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
+import org.firstinspires.ftc.teamcode.utils.Helpers;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -37,11 +37,6 @@ public class Vision {
     static final int PRODUCT_ID_ARDUCAM_OV5648 = 0x284C;
 
     public Vision(HardwareMap hardwareMap) {
-        CameraCompatibilityManager.getInstance()
-                .addQuirk(
-                        VENDOR_ID_SUNPLUS_INNOVATION_TECHNOLOGY,
-                        PRODUCT_ID_ARDUCAM_OV5648,
-                        CameraCompatibilityManager.Quirk.AVOID_LIB_USB_RESET_DEVICE);
 
         aprilTag = new AprilTagProcessor.Builder()
                 .setCameraPose(cameraPosition, cameraOrientation)
@@ -75,7 +70,7 @@ public class Vision {
                             detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES)
                     );
 
-                    if (estimatedPose.inField()) {
+                    if (Helpers.inField(estimatedPose)) {
                         double conf = 0.75;
                         conf /= Math.pow(detection.ftcPose.range / 12, 2);
                         conf /= (1.0 - MathUtils.clamp(detection.decisionMargin / 100.0, 0.0, 0.999));
