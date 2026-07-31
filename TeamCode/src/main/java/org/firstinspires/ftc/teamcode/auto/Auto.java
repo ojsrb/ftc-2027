@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
+import com.seattlesolvers.solverslib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.Superstructure;
 import org.firstinspires.ftc.teamcode.Superstructure.State;
-import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
 
 import java.util.List;
 

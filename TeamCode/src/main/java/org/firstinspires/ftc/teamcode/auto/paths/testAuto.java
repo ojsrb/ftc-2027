@@ -3,9 +3,8 @@ package org.firstinspires.ftc.teamcode.auto.paths;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
+import com.seattlesolvers.solverslib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.auto.Auto;
-import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
 
 @Autonomous(name = "testAuto")
 @Disabled

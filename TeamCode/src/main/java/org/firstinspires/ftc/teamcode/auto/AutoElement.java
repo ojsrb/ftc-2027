@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
+import com.seattlesolvers.solverslib.geometry.Pose2d;
+
 import org.firstinspires.ftc.teamcode.Superstructure.State;
 
 public class AutoElement {

@@ -6,9 +6,8 @@ import androidx.core.math.MathUtils;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.utils.Helpers.Speeds;
-import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
+import com.seattlesolvers.solverslib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
@@ -110,7 +109,7 @@ public class Superstructure {
     public boolean moveToPose(Pose2d targetPose) {
         double xControl = xController.calculate(pose.getX(), targetPose.getX());
         double yControl = yController.calculate(pose.getY(), targetPose.getY());
-        double wControl = wController.calculate(pose.getDeg(), targetPose.getDeg());
+        double wControl = wController.calculate(pose.getHeading(), targetPose.getHeading());
 
         Speeds newSpeeds = new Speeds(xControl, yControl, wControl);
         setDrivetrainSpeeds(newSpeeds);
