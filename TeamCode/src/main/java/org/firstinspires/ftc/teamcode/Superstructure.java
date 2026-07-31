@@ -2,12 +2,19 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
+import androidx.core.math.MathUtils;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.Helpers.Speeds;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
+import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.utils.PIDController;
+
+import java.util.List;
 
 public class Superstructure {
 
@@ -35,8 +42,21 @@ public class Superstructure {
 
     private boolean changingStates = false;
 
+    private PIDController xController;
+    private PIDController yController;
+    private PIDController wController;
     private Superstructure() {
         state = State.IDLE;
+
+        xController = new PIDController(Constants.tkP, Constants.tkI, Constants.tkD);
+        yController = new PIDController(Constants.tkP, Constants.tkI, Constants.tkD);
+        wController = new PIDController(Constants.wkP, Constants.wkI, Constants.wkD);
+
+        xController.setTolerance(Constants.tTolerance);
+        yController.setTolerance(Constants.tTolerance);
+        wController.setTolerance(Constants.wTolerance);
+
+        wController.enableContinuousInput(-180.0, 180.0);
     }
 
     private static Superstructure instance;
@@ -54,7 +74,11 @@ public class Superstructure {
     }
 
     public void update() {
-        pose = drivetrain.update(driveState, vision.estimatePose());
+        List<VisionMeasurement> visionMeasurements = vision.getMeasurements();
+        for (VisionMeasurement measurement : visionMeasurements) {
+            drivetrain.addVisionPose(measurement);
+        }
+        pose = drivetrain.update(driveState);
     }
 
     public void setDrivetrainSpeeds(Speeds speeds) {
@@ -81,6 +105,23 @@ public class Superstructure {
 
     public boolean isChangingStates() {
         return changingStates;
+    }
+
+    public boolean moveToPose(Pose2d targetPose) {
+        double xcontrol = xController.calculate(pose.getX(), targetPose.getX());
+        double ycontrol = yController.calculate(pose.getY(), targetPose.getY());
+        double wcontrol = wController.calculate(pose.getDeg(), targetPose.getDeg());
+
+        Speeds newSpeeds = new Speeds(xcontrol, ycontrol, wcontrol);
+        setDrivetrainSpeeds(newSpeeds);
+
+        if (xController.atSetpoint() && yController.atSetpoint() && wController.atSetpoint()) {
+            setDrivetrainSpeeds(new Speeds(0, 0, 0));
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
 }

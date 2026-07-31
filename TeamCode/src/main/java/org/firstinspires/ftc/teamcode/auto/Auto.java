@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.teamcode.Superstructure;
 import org.firstinspires.ftc.teamcode.Superstructure.State;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
 
@@ -8,14 +10,15 @@ import java.util.List;
 
 public class Auto {
 
-    Follower follower;
+    private Superstructure superstructure;
 
-    List<AutoElement> elements;
+    private List<AutoElement> elements;
 
     int index = 0;
 
     public Auto(HardwareMap hardwareMap) {
-        follower = new Follower(hardwareMap);
+        superstructure = Superstructure.getInstance();
+        superstructure.initializeHardwareMap(hardwareMap);
     }
 
     public void add(State targetState) {
@@ -40,14 +43,16 @@ public class Auto {
 
     public void update() {
         AutoElement element = elements.get(index);
-        boolean doneMoving = follower.moveToPose(element.targetPose);
-        if (follower.superstructure.getState() != element.targetState) {
-            follower.superstructure.setState(element.targetState);
+        boolean doneMoving = superstructure.moveToPose(element.targetPose);
+        if (superstructure.getState() != element.targetState) {
+            superstructure.setState(element.targetState);
         }
 
-        if (follower.superstructure.getState() == element.targetState && !follower.superstructure.isChangingStates() && doneMoving) {
+        if (superstructure.getState() == element.targetState && !superstructure.isChangingStates() && doneMoving) {
             index++;
         }
+
+        superstructure.update();
     }
 
 }

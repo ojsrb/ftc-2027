@@ -78,6 +78,14 @@ public class Helpers {
         public double getDeg() {
             return w.getDeg();
         }
+
+        public boolean inField() {
+            return (getX() >= -144.0 && getX() <= 144.0 && getY() >= -144.0 && getY() <= 144.0);
+        }
+
+        public double distance(Pose2d other) {
+            return Math.sqrt((getX() - other.getX()) * (getX() - other.getX()) + (getY() - other.getY()) * (getY() - other.getY()));
+        }
     }
 
     public static class Speeds {
@@ -116,5 +124,23 @@ public class Helpers {
         }
     }
 
+    public static class PoseMeasurement {
+        public double timestamp; // in ms
+        public Pose2d pose;
 
+        public PoseMeasurement(Pose2d pose, double timestamp) {
+            this.pose = pose;
+            this.timestamp = timestamp;
+        }
+    }
+
+    public static class VisionMeasurement extends PoseMeasurement {
+
+        public double confidence;
+
+        public VisionMeasurement(Pose2d pose, double timestamp, double confidence) {
+            super(pose, timestamp);
+            this.confidence = confidence;
+        }
+    }
 }

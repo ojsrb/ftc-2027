@@ -7,13 +7,16 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.utils.Helpers;
+import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
+import org.firstinspires.ftc.teamcode.utils.Helpers.PoseMeasurement;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Speeds;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Rotation2d;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Translation2d;
 import org.firstinspires.ftc.teamcode.Superstructure.DriveState;
 
+import java.util.ArrayList;
+import java.util.List;
 
 public class Drivetrain {
 
@@ -28,6 +31,8 @@ public class Drivetrain {
     private double lastFrPos = 0.0;
     private double lastBlPos = 0.0;
     private double lastBrPos = 0.0;
+
+    private List<PoseMeasurement> poseHistory;
 
     private IMU imu;
 
@@ -57,6 +62,7 @@ public class Drivetrain {
 
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
+        poseHistory = new ArrayList<>();
     }
 
     public void setVelocity(Speeds velocity) {
@@ -69,10 +75,10 @@ public class Drivetrain {
         double blPos = bl.getCurrentPosition() * Constants.INCHES_PER_TICK;
         double brPos = br.getCurrentPosition() * Constants.INCHES_PER_TICK;
 
-        double dFL = (flPos + lastFlPos) / 2.0;
-        double dFR = (frPos + lastFrPos) / 2.0;
-        double dBL = (blPos + lastBlPos) / 2.0;
-        double dBR = (brPos + lastBrPos) / 2.0;
+        double dFL = flPos - lastFlPos;
+        double dFR = frPos - lastFrPos;
+        double dBL = blPos - lastBlPos;
+        double dBR = brPos - lastBrPos;
 
         lastFlPos = flPos;
         lastFrPos = frPos;
@@ -85,7 +91,46 @@ public class Drivetrain {
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
         double avgHeading = pose.getDeg() + (heading - pose.getDeg()) / 2.0;
 
-        pose = new Pose2d(new Translation2d(dxR * Math.cos(avgHeading / 180.0 * Math.PI) - dyR * Math.sin(avgHeading / 180.0 * Math.PI), dxR * Math.sin(avgHeading / 180.0 * Math.PI) + dyR * Math.cos(avgHeading / 180.0 * Math.PI)), new Rotation2d(heading));
+        // encoder estimated position
+        double estimatedX = dxR * Math.cos(avgHeading / 180.0 * Math.PI) - dyR * Math.sin(avgHeading / 180.0 * Math.PI);
+        double estimatedY = dxR * Math.sin(avgHeading / 180.0 * Math.PI) + dyR * Math.cos(avgHeading / 180.0 * Math.PI);
+
+        poseHistory.add(new PoseMeasurement(new Pose2d(pose.getX() + estimatedX, pose.getY() + estimatedY, heading), System.currentTimeMillis()));
+
+        while (poseHistory.size() > Constants.MAX_POSE_HISTORY) {
+            poseHistory.remove(0);
+        }
+
+        pose = poseHistory.get(poseHistory.size() - 1).pose;
+
+    }
+
+    public void addVisionPose(VisionMeasurement visionMeasurement) {
+        if (poseHistory.isEmpty()) return;
+
+        // find the closest pose to the timestamp from the vision measurement
+        PoseMeasurement closest = poseHistory.get(0);
+        double minDiff = Math.abs(visionMeasurement.timestamp - closest.timestamp);
+        int index = 0;
+        for (int i = 1; i < poseHistory.size(); i++) {
+            PoseMeasurement candidate = poseHistory.get(i);
+            double diff = Math.abs(visionMeasurement.timestamp - candidate.timestamp);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closest = candidate;
+                index = i;
+            }
+        }
+
+        double offsetX = (visionMeasurement.pose.getX() - closest.pose.getX()) * visionMeasurement.confidence;
+        double offsetY = (visionMeasurement.pose.getY() - closest.pose.getY()) * visionMeasurement.confidence;
+
+        for (int i = index; i < poseHistory.size(); i++) {
+            poseHistory.get(i).pose = new Pose2d(poseHistory.get(i).pose.getX() + offsetX, poseHistory.get(i).pose.getY() + offsetY, poseHistory.get(i).pose.getDeg());
+        }
+
+        pose = poseHistory.get(poseHistory.size() - 1).pose;
+
     }
 
     private void mecanumDrive() {
@@ -123,7 +168,7 @@ public class Drivetrain {
     }
 
 
-    public Pose2d update(DriveState robotState, Pose2d visionPose) {
+    public Pose2d update(DriveState robotState) {
         poseEstimate();
         mecanumDrive();
         return pose;

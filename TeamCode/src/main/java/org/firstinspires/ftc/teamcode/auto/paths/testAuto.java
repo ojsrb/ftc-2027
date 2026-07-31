@@ -5,14 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.auto.Auto;
-import org.firstinspires.ftc.teamcode.auto.Follower;
 import org.firstinspires.ftc.teamcode.utils.Helpers.Pose2d;
 
 @Autonomous(name = "testAuto")
 @Disabled
 public class testAuto extends LinearOpMode{
 
-    Auto auto;
+    private Auto auto;
 
     @Override public void runOpMode() {
         auto.add(new Pose2d(0, 0, 0));
