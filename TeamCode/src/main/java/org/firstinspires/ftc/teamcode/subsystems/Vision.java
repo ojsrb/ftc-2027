@@ -27,14 +27,14 @@ public class Vision {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
-    private Position cameraPosition = new Position(DistanceUnit.INCH,
+    private final Position cameraPosition = new Position(DistanceUnit.INCH,
             0, 0, 0, 0);
-    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
+    private final YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
             0, -90, 0, 0);
 
-    private AprilTagProcessor aprilTag;
+    private final AprilTagProcessor aprilTag;
 
-    private VisionPortal visionPortal;
+    private final VisionPortal visionPortal;
 
     static final int VENDOR_ID_SUNPLUS_INNOVATION_TECHNOLOGY = 0x1BCF;
     static final int PRODUCT_ID_ARDUCAM_OV5648 = 0x284C;

@@ -40,11 +40,11 @@ public class Superstructure {
 
     private State state;
 
-    private boolean changingStates = false;
+    private final boolean changingStates = false;
 
-    private PIDController xController;
-    private PIDController yController;
-    private PIDController wController;
+    private final PIDController xController;
+    private final PIDController yController;
+    private final PIDController wController;
     private Superstructure() {
         state = State.IDLE;
 
@@ -108,11 +108,11 @@ public class Superstructure {
     }
 
     public boolean moveToPose(Pose2d targetPose) {
-        double xcontrol = xController.calculate(pose.getX(), targetPose.getX());
-        double ycontrol = yController.calculate(pose.getY(), targetPose.getY());
-        double wcontrol = wController.calculate(pose.getDeg(), targetPose.getDeg());
+        double xControl = xController.calculate(pose.getX(), targetPose.getX());
+        double yControl = yController.calculate(pose.getY(), targetPose.getY());
+        double wControl = wController.calculate(pose.getDeg(), targetPose.getDeg());
 
-        Speeds newSpeeds = new Speeds(xcontrol, ycontrol, wcontrol);
+        Speeds newSpeeds = new Speeds(xControl, yControl, wControl);
         setDrivetrainSpeeds(newSpeeds);
 
         if (xController.atSetpoint() && yController.atSetpoint() && wController.atSetpoint()) {

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Auto {
 
-    private Superstructure superstructure;
+    private final Superstructure superstructure;
 
     private List<AutoElement> elements;
 

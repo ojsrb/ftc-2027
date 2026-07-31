@@ -10,7 +10,7 @@ public class PIDController {
     private double m_period = 0;
     private long m_startTime = 0;
 
-    private double m_iZone = Double.POSITIVE_INFINITY;
+    private final double m_iZone = Double.POSITIVE_INFINITY;
     private double m_maximumIntegral = 1.0;
     private double m_minimumIntegral = -1.0;
 

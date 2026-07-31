@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Superstructure;
 @TeleOp(name = "MainTeleOp", group = "TeleOp")
 @Disabled
 public class MainTeleOp extends OpMode {
-    private ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime runtime = new ElapsedTime();
 
     private Superstructure superstructure;
 

@@ -22,19 +22,19 @@ public class Drivetrain {
 
     private Speeds robotSpeeds;
     private Pose2d pose;
-    private DcMotor fl;
-    private DcMotor fr;
-    private DcMotor bl;
-    private DcMotor br;
+    private final DcMotor fl;
+    private final DcMotor fr;
+    private final DcMotor bl;
+    private final DcMotor br;
 
     private double lastFlPos = 0.0;
     private double lastFrPos = 0.0;
     private double lastBlPos = 0.0;
     private double lastBrPos = 0.0;
 
-    private List<PoseMeasurement> poseHistory;
+    private final List<PoseMeasurement> poseHistory;
 
-    private IMU imu;
+    private final IMU imu;
 
     public Drivetrain(HardwareMap hardwareMap, Pose2d initialPose) {
         fl = hardwareMap.get(DcMotor.class, "leftFront");
