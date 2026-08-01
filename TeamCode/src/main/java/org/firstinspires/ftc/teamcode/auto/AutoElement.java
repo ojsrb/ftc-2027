@@ -6,8 +6,8 @@ import org.firstinspires.ftc.teamcode.Superstructure.State;
 
 public class AutoElement {
 
-    Pose2d targetPose;
-    State targetState;
+    final Pose2d targetPose;
+    final State targetState;
 
     public AutoElement(Pose2d pose, State state) {
         targetPose = pose;

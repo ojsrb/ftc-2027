@@ -1,16 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
-import org.firstinspires.ftc.teamcode.utils.Helpers.PoseMeasurement;
-
 import com.seattlesolvers.solverslib.drivebase.MecanumDrive;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.geometry.Rotation2d;
@@ -20,6 +12,11 @@ import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.MecanumDriveKinematics;
 import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.MecanumDriveOdometry;
 import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.MecanumDriveWheelSpeeds;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.utils.Helpers.PoseMeasurement;
+import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,30 +29,25 @@ public class Drivetrain {
     private final Motor bl;
     private final Motor br;
 
-    private double lastFlPos = 0.0;
-    private double lastFrPos = 0.0;
-    private double lastBlPos = 0.0;
-    private double lastBrPos = 0.0;
-
     private final List<PoseMeasurement> poseHistory;
 
     private final IMU imu;
 
     // wheel locations in meters
-    Translation2d m_frontLeftLocation =
+    final Translation2d m_frontLeftLocation =
             new Translation2d(0.381, 0.381);
-    Translation2d m_frontRightLocation =
+    final Translation2d m_frontRightLocation =
             new Translation2d(0.381, -0.381);
-    Translation2d m_backLeftLocation =
+    final Translation2d m_backLeftLocation =
             new Translation2d(-0.381, 0.381);
-    Translation2d m_backRightLocation =
+    final Translation2d m_backRightLocation =
             new Translation2d(-0.381, -0.381);
 
     MecanumDriveKinematics kinematics;
     MecanumDriveWheelSpeeds wheelSpeeds;
-    MecanumDriveOdometry odometry;
+    final MecanumDriveOdometry odometry;
 
-    MecanumDrive drive;
+    final MecanumDrive drive;
 
     public Drivetrain(HardwareMap hardwareMap, Pose2d initialPose) {
         wheelSpeeds = new MecanumDriveWheelSpeeds();

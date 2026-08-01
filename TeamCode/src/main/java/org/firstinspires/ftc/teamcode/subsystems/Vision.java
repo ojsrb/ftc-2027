@@ -5,6 +5,7 @@ import static com.seattlesolvers.solverslib.util.MathUtils.clamp;
 import androidx.core.math.MathUtils;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.seattlesolvers.solverslib.geometry.Pose2d;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -12,9 +13,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 import org.firstinspires.ftc.teamcode.utils.Helpers;
-import com.seattlesolvers.solverslib.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -26,20 +26,14 @@ public class Vision {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
-    private final Position cameraPosition = new Position(DistanceUnit.INCH,
-            0, 0, 0, 0);
-    private final YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-            0, -90, 0, 0);
-
     private final AprilTagProcessor aprilTag;
-
-    private final VisionPortal visionPortal;
-
-    static final int VENDOR_ID_SUNPLUS_INNOVATION_TECHNOLOGY = 0x1BCF;
-    static final int PRODUCT_ID_ARDUCAM_OV5648 = 0x284C;
 
     public Vision(HardwareMap hardwareMap) {
 
+        YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
+                0, -90, 0, 0);
+        Position cameraPosition = new Position(DistanceUnit.INCH,
+                0, 0, 0, 0);
         aprilTag = new AprilTagProcessor.Builder()
                 .setCameraPose(cameraPosition, cameraOrientation)
                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
@@ -54,8 +48,6 @@ public class Vision {
         }
 
         builder.addProcessor(aprilTag);
-
-        visionPortal = builder.build();
     }
 
     public List<VisionMeasurement> getMeasurements() {

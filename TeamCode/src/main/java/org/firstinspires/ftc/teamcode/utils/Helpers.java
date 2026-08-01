@@ -5,7 +5,7 @@ import com.seattlesolvers.solverslib.geometry.Pose2d;
 public class Helpers {
 
     public static class PoseMeasurement {
-        public double timestamp; // in ms
+        public final double timestamp; // in ms
         public Pose2d pose;
 
         public PoseMeasurement(Pose2d pose, double timestamp) {
@@ -16,7 +16,7 @@ public class Helpers {
 
     public static class VisionMeasurement extends PoseMeasurement {
 
-        public double confidence;
+        public final double confidence;
 
         public VisionMeasurement(Pose2d pose, double timestamp, double confidence) {
             super(pose, timestamp);

@@ -5,6 +5,12 @@ import java.text.SimpleDateFormat
 //
 apply plugin: 'com.android.library'
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 android {
 
     defaultConfig {
@@ -18,11 +24,11 @@ android {
         buildConfig = true
     }
 
-    compileSdkVersion 30
+    compileSdkVersion 37
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     namespace = 'com.qualcomm.ftcrobotcontroller'
 }

@@ -1,18 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
-import androidx.core.math.MathUtils;
-
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.seattlesolvers.solverslib.controller.PIDController;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.ChassisSpeeds;
 
-import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
-import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 
 import java.util.List;
 
@@ -20,10 +15,6 @@ public class Superstructure {
 
     public enum State {
         IDLE,
-        INTAKE,
-        SCORE,
-        DEPOSIT,
-        TRAVEL
     }
 
     private Pose2d pose;
@@ -47,8 +38,6 @@ public class Superstructure {
         xController.setTolerance(Constants.tTolerance);
         yController.setTolerance(Constants.tTolerance);
         wController.setTolerance(Constants.wTolerance);
-
-        wController.enableContinuousInput(-180.0, 180.0);
     }
 
     private static Superstructure instance;
@@ -87,10 +76,6 @@ public class Superstructure {
         return state;
     }
 
-    public Pose2d getPose() {
-        return pose;
-    }
-
     public boolean isChangingStates() {
         return changingStates;
     }
@@ -98,12 +83,19 @@ public class Superstructure {
     public boolean moveToPose(Pose2d targetPose) {
         double xControl = xController.calculate(pose.getX(), targetPose.getX());
         double yControl = yController.calculate(pose.getY(), targetPose.getY());
-        double wControl = wController.calculate(pose.getHeading(), targetPose.getHeading());
+
+        double wrappedError = targetPose.getHeading() - pose.getHeading();
+        while (wrappedError > 180)  wrappedError -= 360;
+        while (wrappedError < -180) wrappedError += 360;
+
+        wController.setSetPoint(0);
+
+        double wControl = wController.calculate(wrappedError);
 
         ChassisSpeeds newSpeeds = new ChassisSpeeds(xControl, yControl, wControl);
         setDrivetrainSpeeds(newSpeeds);
 
-        if (xController.atSetpoint() && yController.atSetpoint() && wController.atSetpoint()) {
+        if (xController.atSetPoint() && yController.atSetPoint() && wController.atSetPoint()) {
             setDrivetrainSpeeds(new ChassisSpeeds(0, 0, 0));
             return true;
         } else {
