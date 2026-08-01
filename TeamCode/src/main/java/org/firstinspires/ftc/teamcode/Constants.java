@@ -5,7 +5,8 @@ public class Constants {
     // ----- TELEOP -----
     // ------------------
     public static final double JOYSTICK_POW = 2.0;
-    public static final double SPEED = 1.0;
+    public static final double ROBOT_MAX_SPEED = 1.0; // feet per second
+    public static final double ROBOT_SPEED_PERCENT = 1.0; // change when testing etc.
 
     // ------------------------
     // ----- DRIVE MOTORS -----

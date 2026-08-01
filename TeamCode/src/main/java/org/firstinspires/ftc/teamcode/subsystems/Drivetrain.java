@@ -17,12 +17,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.Helpers.PoseMeasurement;
 import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
+import org.firstinspires.ftc.teamcode.utils.Units;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Drivetrain {
 
+    // pose uses inches and degrees
     private Pose2d pose;
     private final Motor fl;
     private final Motor fr;
@@ -35,13 +37,13 @@ public class Drivetrain {
 
     // wheel locations in meters
     final Translation2d m_frontLeftLocation =
-            new Translation2d(0.381, 0.381);
+            new Translation2d(Units.in2m(10), Units.in2m(10));
     final Translation2d m_frontRightLocation =
-            new Translation2d(0.381, -0.381);
+            new Translation2d(Units.in2m(10), -Units.in2m(10));
     final Translation2d m_backLeftLocation =
-            new Translation2d(-0.381, 0.381);
+            new Translation2d(Units.in2m(10), Units.in2m(10));
     final Translation2d m_backRightLocation =
-            new Translation2d(-0.381, -0.381);
+            new Translation2d(Units.in2m(10), -Units.in2m(10));
 
     MecanumDriveKinematics kinematics;
     MecanumDriveWheelSpeeds wheelSpeeds;
@@ -99,14 +101,13 @@ public class Drivetrain {
         );
     }
 
-    public void setVelocity(ChassisSpeeds velocity) {
+    public void setVelocity(ChassisSpeeds velocityInchesDegrees) {
         wheelSpeeds = kinematics.toWheelSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(
-                velocity.vxMetersPerSecond,
-                velocity.vyMetersPerSecond,
-                velocity.omegaRadiansPerSecond,
+                Units.in2m(velocityInchesDegrees.vxMetersPerSecond),
+                Units.in2m(velocityInchesDegrees.vyMetersPerSecond),
+                Units.deg2rad(velocityInchesDegrees.omegaRadiansPerSecond),
                 Rotation2d.fromDegrees(pose.getHeading())
         ));
-
     }
 
     private void poseEstimate() {
@@ -120,7 +121,9 @@ public class Drivetrain {
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
         Rotation2d avgHeading = Rotation2d.fromDegrees(pose.getHeading() + (heading - pose.getHeading()) / 2.0);
 
-        poseHistory.add(new PoseMeasurement(odometry.updateWithTime(System.currentTimeMillis() / 1000.0, avgHeading, speeds), System.currentTimeMillis()));
+        Pose2d odometryPose = odometry.updateWithTime(Units.ms2sec(System.currentTimeMillis()), avgHeading, speeds);
+
+        poseHistory.add(new PoseMeasurement(Units.m2in(odometryPose), System.currentTimeMillis()));
 
         while (poseHistory.size() > Constants.MAX_POSE_HISTORY) {
             poseHistory.remove(0);
