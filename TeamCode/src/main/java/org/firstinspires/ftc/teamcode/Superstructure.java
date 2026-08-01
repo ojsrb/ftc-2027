@@ -6,8 +6,9 @@ import androidx.core.math.MathUtils;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.utils.Helpers.Speeds;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
+import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.ChassisSpeeds;
+
 import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
@@ -25,17 +26,9 @@ public class Superstructure {
         TRAVEL
     }
 
-    public enum DriveState {
-        TELEOP,
-        AUTO,
-        ALIGN
-    }
-
     private Pose2d pose;
     private Vision vision;
     private Drivetrain drivetrain;
-
-    private DriveState driveState;
 
     private State state;
 
@@ -47,9 +40,9 @@ public class Superstructure {
     private Superstructure() {
         state = State.IDLE;
 
-        xController = new PIDController(Constants.tkP, Constants.tkI, Constants.tkD);
-        yController = new PIDController(Constants.tkP, Constants.tkI, Constants.tkD);
-        wController = new PIDController(Constants.wkP, Constants.wkI, Constants.wkD);
+        xController = new PIDController(Constants.tP, Constants.tI, Constants.tD);
+        yController = new PIDController(Constants.tP, Constants.tI, Constants.tD);
+        wController = new PIDController(Constants.wP, Constants.wI, Constants.wD);
 
         xController.setTolerance(Constants.tTolerance);
         yController.setTolerance(Constants.tTolerance);
@@ -77,15 +70,11 @@ public class Superstructure {
         for (VisionMeasurement measurement : visionMeasurements) {
             drivetrain.addVisionPose(measurement);
         }
-        pose = drivetrain.update(driveState);
+        pose = drivetrain.update();
     }
 
-    public void setDrivetrainSpeeds(Speeds speeds) {
+    public void setDrivetrainSpeeds(ChassisSpeeds speeds) {
         drivetrain.setVelocity(speeds);
-    }
-
-    public void setDriveState(DriveState newState) {
-        driveState = newState;
     }
 
     public void setState(State newState) {
@@ -111,11 +100,11 @@ public class Superstructure {
         double yControl = yController.calculate(pose.getY(), targetPose.getY());
         double wControl = wController.calculate(pose.getHeading(), targetPose.getHeading());
 
-        Speeds newSpeeds = new Speeds(xControl, yControl, wControl);
+        ChassisSpeeds newSpeeds = new ChassisSpeeds(xControl, yControl, wControl);
         setDrivetrainSpeeds(newSpeeds);
 
         if (xController.atSetpoint() && yController.atSetpoint() && wController.atSetpoint()) {
-            setDrivetrainSpeeds(new Speeds(0, 0, 0));
+            setDrivetrainSpeeds(new ChassisSpeeds(0, 0, 0));
             return true;
         } else {
             return false;

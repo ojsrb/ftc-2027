@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static com.seattlesolvers.solverslib.util.MathUtils.clamp;
+
 import androidx.core.math.MathUtils;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -74,7 +76,7 @@ public class Vision {
                         double conf = 0.75;
                         conf /= Math.pow(detection.ftcPose.range / 12, 2);
                         conf /= (1.0 - MathUtils.clamp(detection.decisionMargin / 100.0, 0.0, 0.999));
-                        poses.add(new VisionMeasurement(estimatedPose, detection.frameAcquisitionNanoTime / 1000000.0, conf));
+                        poses.add(new VisionMeasurement(estimatedPose, detection.frameAcquisitionNanoTime / 1000000.0, clamp(conf, 0.0, 1.0)));
                     }
                 }
                 }

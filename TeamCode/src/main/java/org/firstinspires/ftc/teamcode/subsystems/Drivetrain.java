@@ -6,24 +6,31 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 import org.firstinspires.ftc.teamcode.utils.Helpers.PoseMeasurement;
-import org.firstinspires.ftc.teamcode.utils.Helpers.Speeds;
+
+import com.seattlesolvers.solverslib.drivebase.MecanumDrive;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
-import org.firstinspires.ftc.teamcode.Superstructure.DriveState;
+import com.seattlesolvers.solverslib.geometry.Rotation2d;
+import com.seattlesolvers.solverslib.geometry.Translation2d;
+import com.seattlesolvers.solverslib.hardware.motors.Motor;
+import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.ChassisSpeeds;
+import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.MecanumDriveKinematics;
+import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.MecanumDriveOdometry;
+import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.MecanumDriveWheelSpeeds;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Drivetrain {
 
-    private Speeds robotSpeeds;
     private Pose2d pose;
-    private final DcMotor fl;
-    private final DcMotor fr;
-    private final DcMotor bl;
-    private final DcMotor br;
+    private final Motor fl;
+    private final Motor fr;
+    private final Motor bl;
+    private final Motor br;
 
     private double lastFlPos = 0.0;
     private double lastFrPos = 0.0;
@@ -34,66 +41,94 @@ public class Drivetrain {
 
     private final IMU imu;
 
+    // wheel locations in meters
+    Translation2d m_frontLeftLocation =
+            new Translation2d(0.381, 0.381);
+    Translation2d m_frontRightLocation =
+            new Translation2d(0.381, -0.381);
+    Translation2d m_backLeftLocation =
+            new Translation2d(-0.381, 0.381);
+    Translation2d m_backRightLocation =
+            new Translation2d(-0.381, -0.381);
+
+    MecanumDriveKinematics kinematics;
+    MecanumDriveWheelSpeeds wheelSpeeds;
+    MecanumDriveOdometry odometry;
+
+    MecanumDrive drive;
+
     public Drivetrain(HardwareMap hardwareMap, Pose2d initialPose) {
-        fl = hardwareMap.get(DcMotor.class, "leftFront");
-        fr = hardwareMap.get(DcMotor.class, "rightFront");
-        bl = hardwareMap.get(DcMotor.class, "leftRear");
-        br = hardwareMap.get(DcMotor.class, "rightRear");
-        robotSpeeds = new Speeds();
+        wheelSpeeds = new MecanumDriveWheelSpeeds();
         pose = initialPose;
+        odometry = new MecanumDriveOdometry(
+                kinematics, pose.getRotation(), pose
+        );
 
-        fl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        fr.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        bl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        br.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        fl = new Motor(hardwareMap, "leftFront");
+        fr = new Motor(hardwareMap, "rightFront");
+        bl = new Motor(hardwareMap, "leftRear");
+        br = new Motor(hardwareMap, "rightRear");
 
-        fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        fl.setRunMode(Motor.RunMode.VelocityControl);
+        fr.setRunMode(Motor.RunMode.VelocityControl);
+        bl.setRunMode(Motor.RunMode.VelocityControl);
+        br.setRunMode(Motor.RunMode.VelocityControl);
+
+        fl.setVeloCoefficients(Constants.MotorP, Constants.MotorI, Constants.MotorD);
+        fr.setVeloCoefficients(Constants.MotorP, Constants.MotorI, Constants.MotorD);
+        bl.setVeloCoefficients(Constants.MotorP, Constants.MotorI, Constants.MotorD);
+        br.setVeloCoefficients(Constants.MotorP, Constants.MotorI, Constants.MotorD);
+
+        fl.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+        fr.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+        bl.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+        br.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
 
         // set directions of motors
-        fl.setDirection(DcMotor.Direction.REVERSE);
-        fr.setDirection(DcMotor.Direction.FORWARD);
-        bl.setDirection(DcMotor.Direction.REVERSE);
-        br.setDirection(DcMotor.Direction.FORWARD);
+        fl.setInverted(true);
+        fr.setInverted(false);
+        bl.setInverted(true);
+        br.setInverted(false);
 
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
         poseHistory = new ArrayList<>();
+
+        kinematics = new MecanumDriveKinematics(
+                m_frontLeftLocation,
+                m_frontRightLocation,
+                m_backLeftLocation,
+                m_backRightLocation
+        );
+
+        drive = new MecanumDrive(
+                fl, fr,
+                bl, br
+        );
     }
 
-    public void setVelocity(Speeds velocity) {
-        robotSpeeds = velocity.toRobot(pose.getHeading());
+    public void setVelocity(ChassisSpeeds velocity) {
+        wheelSpeeds = kinematics.toWheelSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(
+                velocity.vxMetersPerSecond,
+                velocity.vyMetersPerSecond,
+                velocity.omegaRadiansPerSecond,
+                Rotation2d.fromDegrees(pose.getHeading())
+        ));
+
     }
 
     private void poseEstimate() {
-        double flPos = fl.getCurrentPosition() * Constants.INCHES_PER_TICK;
-        double frPos = fr.getCurrentPosition() * Constants.INCHES_PER_TICK;
-        double blPos = bl.getCurrentPosition() * Constants.INCHES_PER_TICK;
-        double brPos = br.getCurrentPosition() * Constants.INCHES_PER_TICK;
 
-        double dFL = flPos - lastFlPos;
-        double dFR = frPos - lastFrPos;
-        double dBL = blPos - lastBlPos;
-        double dBR = brPos - lastBrPos;
-
-        lastFlPos = flPos;
-        lastFrPos = frPos;
-        lastBlPos = blPos;
-        lastBrPos = brPos;
-
-        double dxR = (dFL + dFR + dBL + dBR) / 4.0;
-        double dyR = (-dFL + dFR + dBL - dBR) / 4.0;
+        // update pose with odometry
+        MecanumDriveWheelSpeeds speeds = new MecanumDriveWheelSpeeds(
+                fl.encoder.getRate(), fr.encoder.getRate(),
+                bl.encoder.getRate(), br.encoder.getRate()
+        );
 
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        double avgHeading = pose.getHeading() + (heading - pose.getHeading()) / 2.0;
+        Rotation2d avgHeading = Rotation2d.fromDegrees(pose.getHeading() + (heading - pose.getHeading()) / 2.0);
 
-        // encoder estimated position
-        double estimatedX = dxR * Math.cos(avgHeading / 180.0 * Math.PI) - dyR * Math.sin(avgHeading / 180.0 * Math.PI);
-        double estimatedY = dxR * Math.sin(avgHeading / 180.0 * Math.PI) + dyR * Math.cos(avgHeading / 180.0 * Math.PI);
-
-        poseHistory.add(new PoseMeasurement(new Pose2d(pose.getX() + estimatedX, pose.getY() + estimatedY, heading), System.currentTimeMillis()));
+        poseHistory.add(new PoseMeasurement(odometry.updateWithTime(System.currentTimeMillis() / 1000.0, avgHeading, speeds), System.currentTimeMillis()));
 
         while (poseHistory.size() > Constants.MAX_POSE_HISTORY) {
             poseHistory.remove(0);
@@ -132,41 +167,15 @@ public class Drivetrain {
     }
 
     private void mecanumDrive() {
-        double max;
+        fl.set(wheelSpeeds.frontLeftMetersPerSecond);
+        fr.set(wheelSpeeds.frontRightMetersPerSecond);
+        bl.set(wheelSpeeds.rearLeftMetersPerSecond);
+        br.set(wheelSpeeds.rearRightMetersPerSecond);
 
-        double axial   = robotSpeeds.getY();
-        double lateral =  robotSpeeds.getX();
-        double yaw = robotSpeeds.getHeading() - pose.getHeading();
-
-        // Combine the joystick requests for each axis-motion to determine each wheel's power.
-        // Set up a variable for each drive wheel to save the power level for telemetry.
-        double flPower = axial + lateral + yaw;
-        double frPower = axial - lateral - yaw;
-        double blPower   = axial - lateral + yaw;
-        double brPower  = axial + lateral - yaw;
-
-        // Normalize the values so no wheel power exceeds 100%
-        // This ensures that the robot maintains the desired motion.
-        max = Math.max(Math.abs(flPower), Math.abs(frPower));
-        max = Math.max(max, Math.abs(blPower));
-        max = Math.max(max, Math.abs(brPower));
-
-        if (max > 1.0) {
-            flPower /= max;
-            frPower /= max;
-            blPower   /= max;
-            brPower  /= max;
-        }
-
-        // Send calculated power to wheels
-        fl.setPower(flPower);
-        fr.setPower(frPower);
-        bl.setPower(blPower);
-        br.setPower(brPower);
     }
 
 
-    public Pose2d update(DriveState robotState) {
+    public Pose2d update() {
         poseEstimate();
         mecanumDrive();
         return pose;

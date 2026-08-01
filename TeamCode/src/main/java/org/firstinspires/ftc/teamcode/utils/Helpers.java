@@ -4,23 +4,6 @@ import com.seattlesolvers.solverslib.geometry.Pose2d;
 
 public class Helpers {
 
-    public static class Speeds extends Pose2d {
-
-        /** Center of the field */
-        public Speeds() {
-            super(0, 0, 0);
-        }
-
-        /** y+ = away from red, x+ = right of red perspective */
-        public Speeds(double x, double y, double w) {
-            super(x, y, w);
-        }
-
-        public Speeds toRobot(double deg) {
-            return new Speeds(getX() * Math.cos(deg / 180.0 * Math.PI) - getY() * Math.sin(deg / 180.0 * Math.PI), getX() * Math.sin(deg / 180.0 * Math.PI) + getY() * Math.cos(deg / 180.0 * Math.PI), getHeading());
-        }
-    }
-
     public static class PoseMeasurement {
         public double timestamp; // in ms
         public Pose2d pose;

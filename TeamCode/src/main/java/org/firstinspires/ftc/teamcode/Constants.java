@@ -7,11 +7,13 @@ public class Constants {
     public static final double JOYSTICK_POW = 2.0;
     public static final double SPEED = 1.0;
 
-    // -------------------
-    // ----- ENCODER -----
-    // -------------------
+    // ------------------------
+    // ----- DRIVE MOTORS -----
+    // ------------------------
 
-    public static final double INCHES_PER_TICK = 1.0;
+    public static final double MotorP = 1.0;
+    public static final double MotorI = 0.0;
+    public static final double MotorD = 0.0;
 
 
 
@@ -20,14 +22,14 @@ public class Constants {
     // ---------------------
 
     // translation
-    public static final double tkP = 0.0;
-    public static final double tkI = 0.0;
-    public static final double tkD = 0.0;
+    public static final double tP = 0.0;
+    public static final double tI = 0.0;
+    public static final double tD = 0.0;
 
     // rotation
-    public static final double wkP = 0.0;
-    public static final double wkI = 0.0;
-    public static final double wkD = 0.0;
+    public static final double wP = 0.0;
+    public static final double wI = 0.0;
+    public static final double wD = 0.0;
 
     // finished tolerances
     public static final double tTolerance = 0.1;
