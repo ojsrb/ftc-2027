@@ -9,8 +9,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.utils.Helpers.VisionMeasurement;
 
-import java.util.List;
-
 public class Superstructure {
 
     public enum State {
@@ -55,9 +53,9 @@ public class Superstructure {
     }
 
     public void update() {
-        List<VisionMeasurement> visionMeasurements = vision.getMeasurements();
-        for (VisionMeasurement measurement : visionMeasurements) {
-            drivetrain.addVisionPose(measurement);
+        VisionMeasurement visionMeasurement = vision.getMeasurement();
+        if (visionMeasurement != null) {
+            drivetrain.addVisionPose(visionMeasurement);
         }
         pose = drivetrain.update();
     }

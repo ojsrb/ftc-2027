@@ -20,6 +20,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Vision {
@@ -50,7 +51,7 @@ public class Vision {
         builder.addProcessor(aprilTag);
     }
 
-    public List<VisionMeasurement> getMeasurements() {
+    public VisionMeasurement getMeasurement() {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         List<VisionMeasurement> poses = new ArrayList<>();
 
@@ -74,7 +75,7 @@ public class Vision {
                 }
 
         }
-        return poses;
+        return Helpers.averageVisionMeasurements(poses);
     }
 
 }

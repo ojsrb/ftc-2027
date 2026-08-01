@@ -30,9 +30,9 @@ public class MainTeleOp extends OpMode {
 
         double xVel = Math.pow(driverGamepad.getLeftX(), Constants.JOYSTICK_POW) * Constants.ROBOT_MAX_SPEED * Constants.ROBOT_SPEED_PERCENT;
         double yVel = Math.pow(driverGamepad.getLeftY(), Constants.JOYSTICK_POW) * Constants.ROBOT_MAX_SPEED * Constants.ROBOT_SPEED_PERCENT;
-        double omega = Math.pow(driverGamepad.getRightX(), Constants.JOYSTICK_POW) * Constants.ROBOT_MAX_SPEED * Constants.ROBOT_SPEED_PERCENT;
+        double wVel = Math.pow(driverGamepad.getRightX(), Constants.JOYSTICK_POW) * Constants.ROBOT_MAX_SPEED * Constants.ROBOT_SPEED_PERCENT;
 
-        ChassisSpeeds driveSpeeds = new ChassisSpeeds(xVel, yVel, omega); // inches/second and degrees/second
+        ChassisSpeeds driveSpeeds = new ChassisSpeeds(xVel, yVel, wVel); // inches/second and degrees/second (freedom units 🦅🇺🇸)
         superstructure.setDrivetrainSpeeds(driveSpeeds);
         superstructure.update();
     }

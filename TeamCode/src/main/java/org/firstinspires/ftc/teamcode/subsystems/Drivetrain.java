@@ -135,6 +135,7 @@ public class Drivetrain {
 
     public void addVisionPose(VisionMeasurement visionMeasurement) {
         if (poseHistory.isEmpty()) return;
+        if (visionMeasurement.confidence < Constants.DETECTION_CONFIDENCE_THRESH) return;
 
         // find the closest pose to the timestamp from the vision measurement
         PoseMeasurement closest = poseHistory.get(0);
@@ -148,6 +149,10 @@ public class Drivetrain {
                 closest = candidate;
                 index = i;
             }
+        }
+
+        if (minDiff >= Constants.DETECTION_STALE_THRESH_MS) {
+            return;
         }
 
         double offsetX = (visionMeasurement.pose.getX() - closest.pose.getX()) * visionMeasurement.confidence;
